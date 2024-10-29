@@ -1,7 +1,7 @@
 <?php
 //include "DB.php";
-$con = mysqli_connect("localhost", "root", "","LearningPlatform");
-
+$con = mysqli_connect("localhost", "root", "","learningplatform3");
+//include('../includes/Connection.php');
 class User
 {
 	public $UserName;
@@ -12,13 +12,13 @@ class User
 	function __construct($id)	{
 		
 		if ($id !=""){
-			$sql="select * from users where 	ID=$id";
+			$sql="select * from users where 	id=$id";
 			$User = mysqli_query($GLOBALS['con'],$sql);
 			if ($row = mysqli_fetch_array($User)){
 				$this->UserName=$row["UserName"];
 				$this->Password=$row["Password"];
-				$this->ID=$row["ID"];
-				$this->UserType_obj=new UserType($row["UserType_id"]);
+				$this->ID=$row["id"];
+				$this->UserType_obj= $row["usertype"];
 			}
 		}
 	}
@@ -26,7 +26,7 @@ class User
 
 	public static function getUserById($userID) {
         global $con;
-        $stmt = $con->prepare("SELECT * FROM Users WHERE ID = ?");
+        $stmt = $con->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->bind_param("i", $userID);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -35,7 +35,7 @@ class User
 	// count total quizzez taken by the user
 	public static function countUserQuizzes($userID) {
 		global $con;
-		$stmt = $con->prepare("SELECT COUNT(*) as count FROM QuizResults WHERE userID = ?");
+		$stmt = $con->prepare("SELECT COUNT(*) as count FROM results WHERE user_id = ?");
 		$stmt->bind_param("i", $userID);
 		$stmt->execute();
 		$result = $stmt->get_result();
@@ -45,18 +45,19 @@ class User
 	
 	public static function getUserProgress($userID) {
 		global $con;
-		$stmt = $con->prepare("SELECT progress FROM UserProgress WHERE userID = ?");
+		$stmt = $con->prepare("SELECT quiz_title, score, total_questions FROM results r JOIN quizzes q ON q.id = r.quiz_id  WHERE user_id = ?");
 		$stmt->bind_param("i", $userID);
 		$stmt->execute();
 		$result = $stmt->get_result();
 		$row = $result->fetch_assoc();
-		return $row['progress'] . '%';
+		return $row['quiz_title'] . ": " . (($row['score'] / $row['total_questions']) * 100) . '%';
 	}
 	
 	static function login($UserName,$Password){
-		$sql="SELECT * FROM users WHERE UserName='$UserName' and Password='$Password'";	
+		$sql="SELECT * FROM users WHERE username='$UserName' and password='$Password'";	
 		$result=mysqli_query($GLOBALS['con'],$sql);
 		if ($row=mysqli_fetch_array($result)){
+			$_SESSION["usertype"] = $row['usertype'];
 			return new User($row[0]); 		
 		}
 		//echo "Invalid login";
@@ -77,7 +78,7 @@ class User
 	}
 	
 	static function deleteUser($ObjUser){
-		$sql="delete from users where ID=".$ObjUser->ID;
+		$sql="delete from users where id=".$ObjUser->ID;
 		if(mysqli_query($GLOBALS['con'],$sql))
 			return true;
 		else
@@ -100,70 +101,5 @@ class User
 			return false;	
 	}	
 }
-class UserType {
-	public $ID;
-	public $UserTypeName;
-	public $ArrayOfPages;
-	function __construct($id){
-		if ($id !=""){
-			$sql="select * from usertypes where ID=$id";
-			$result=mysqli_query($GLOBALS['con'],$sql);
-			if ($row = mysqli_fetch_array($result))	{
-				$this->UserTypeName=$row["Name"];
-				$this->ID=$row["ID"];
-				$sql="select PageID from UserType_Pages where UserTypeID=$this->ID";
-				$result=mysqli_query($GLOBALS['con'],$sql);
-				$i=0;
-				while($row1=mysqli_fetch_array($result)){
-					$this->ArrayOfPages[$i]=new pages($row1[0]);
-					$i++;
-				}
-			}
-		}
-	}
-	
-	static function SelectAllUserTypesInDB(){
-		$sql="select * from usertypes";
-		$TypeDataSet = mysqli_query($GLOBALS['con'],$sql);
-		$i=0;
-		$Result;
-		while ($row = mysqli_fetch_array($TypeDataSet))	{
-			$MyObj= new UserType($row["ID"]);
-			$Result[$i]=$MyObj;
-			$i++;
-		}
-		return $Result;
-	}
-}
 
-class pages {
-	public $ID;
-	public $FreindlyName;
-	public $Linkaddress;
-
-	function __construct($id){
-		if ($id !=""){	
-			$sql="select * from pages where ID=$id";
-			$result2=mysqli_query($GLOBALS['con'],$sql) ;
-			if ($row2 = mysqli_fetch_array($result2)){
-				$this->FreindlyName=$row2["FreindlyName"];
-				$this->Linkaddress=$row2["Linkaddress"];
-				$this->ID=$row2["ID"];
-			}
-		}
-	}
-	
-	static function SelectAllPagesInDB(){
-		$sql="select * from pages";
-		$PageDataSet = mysqli_query($GLOBALS['con'],$sql);		
-		$i=0;
-		$Result;
-		while ($row = mysqli_fetch_array($PageDataSet))	{
-			$MyObj= new pages($row["ID"]);
-			$Result[$i]=$MyObj;
-			$i++;
-		}
-		return $Result;
-	}
-}
 ?>

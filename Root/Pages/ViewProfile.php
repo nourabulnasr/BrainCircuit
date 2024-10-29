@@ -1,6 +1,6 @@
 <?php
 session_start();	
-include_once "UserClass.php";
+include_once "../includes/UserClass.php";
 
 $UserObject=new User($_SESSION["UserID"]);
 

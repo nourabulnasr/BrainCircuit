@@ -1,17 +1,38 @@
 <?php
+
+session_start();
+
+if(isset($_SESSION["UserID"]) && $_SESSION["Loggedin"]===true)
+{
+	error_log("User already logged in");
+	header("Location:../index.php");
+}
+
 if(isset($_POST['submit'])){
-	include_once "UserClass.php";
+	
+	include('../includes/Connection.php');
+
+	include_once "../includes/UserClass.php";
+
+	
 	$UserName=$_POST["UserName"];
 	$Password=$_POST["Password"];
 
 	$UserObject=User::login($UserName,$Password);
-	if ($UserObject!==NULL)
+	if ($UserObject)
 	{	
-		session_start();
 		$_SESSION["UserID"]=$UserObject->ID;
         $_SESSION["Loggedin"] = true;
         $_SESSION["UserName"] = $UserName;
-		header("Location:index.php");
+
+		if($_SESSION["usertype"] == 0)
+		{
+			header("Location:../Admin.php");
+		}
+		else if(($_SESSION["usertype"] == 1))
+		{
+			header("Location:../UserDashboard.php");
+		}
 	}
 	else
 	{

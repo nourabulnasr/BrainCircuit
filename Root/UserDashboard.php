@@ -1,12 +1,12 @@
 <?php
-session_start();
-include_once "../includes/Connection.php";
-include_once "../includes/UserClass.php";
-include_once "../includes/Permissions.php";
 
-if (!isset($_SESSION['UserID']) || $_SESSION['UserType'] != 1) {
-    // Redirect to login if not logged in or not a student
-    header("Location: ../authentication/login.php");
+include "./includes/NavBar.php";
+include('./includes/Connection.php');
+require_once "./includes/UserClass.php"; 
+
+if (!isset($_SESSION['usertype'])) {
+    // Redirect to login if not logged in or not a user or admin
+    header("Location: ./authentication/login.php");
     exit();
 }
 
@@ -29,10 +29,10 @@ $user = User::getUserById($userID);
 
     <div class="dashboard-sections">
         <!-- Navigation Links to Different Sections -->
-        <a href="quizzes.php" class="dashboard-link">📋 Take a Quiz</a>
-        <a href="progress.php" class="dashboard-link">📈 View Progress</a>
-        <a href="forum.php" class="dashboard-link">💬 Go to Forum</a>
-        <a href="ViewProfile.php" class="dashboard-link">👤 Profile</a>
+        <a href="./Pages/quizzez.php" class="dashboard-link">📋 Take a Quiz</a>
+        <a href="./Pages/progress.php" class="dashboard-link">📈 View Progress</a>
+        <a href="./Pages/forum.php" class="dashboard-link">💬 Go to Forum</a>
+        <a href="./Pages/ViewProfile.php" class="dashboard-link">👤 Profile</a>
     </div>
 
     <!-- Optional: Display Quick Stats -->

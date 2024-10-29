@@ -91,8 +91,6 @@ footer {
   color: white;
   text-align: center;
   padding: 10px 0;
-  position: fixed;
-  bottom: 0;
   width: 100%;
 }
 
@@ -156,10 +154,13 @@ footer {
 .quiz-card,
 .forum-card {
   border: 1px solid #ffb499;
+  background-color: aliceblue;
   border-radius: 10px;
+  width: 40%;
   padding: 20px;
   margin-bottom: 20px;
   text-align: center;
+  opacity: .9;
 }
 
 .quiz-title,
@@ -197,6 +198,13 @@ footer {
   border: none;
   cursor: pointer;
 }
+
+.quizzes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 
 @media (max-width: 768px) {
   #nav-toggle {
